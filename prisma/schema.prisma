@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  passwordHash  String
+  name          String?
+  role          String   @default("user")
+  createdAt     DateTime @default(now())
+  projects      Project[] @relation("OwnerProjects")
+}
+
+model Project {
+  id                     Int       @id @default(autoincrement())
+  title                  String
+  description            String?
+  domain                 String?    // e.g., "AI", "Sistemas", "Bio"
+  complexity             Complexity @default(MEDIUM)
+  teamSize               Int
+  durationMonths         Int?
+  budget                 Float?
+  studentGpaAvg          Float?     // promedio del equipo
+  supervisorExperience   Int?       // años
+  hasDataset             Boolean?   // si el proyecto incluye dataset
+  priorSimilarProjects   Int?       // número de proyectos previos similares
+  milestonesCompleted    Int?       // count
+  successLabel           Boolean?   // histórico / etiqueta si se conoce
+  ownerId                Int
+  owner                  User       @relation("OwnerProjects", fields: [ownerId], references: [id])
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
+}
+
+enum Complexity {
+  LOW
+  MEDIUM
+  HIGH
+}
